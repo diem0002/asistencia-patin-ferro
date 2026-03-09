@@ -1,0 +1,100 @@
+import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Lock, Mail, Loader2 } from 'lucide-react';
+
+export default function LoginPage() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const { signIn } = useAuth();
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        try {
+            await signIn(email, password);
+            navigate('/');
+        } catch (err) {
+            console.error(err);
+            setError('Error al iniciar sesión. Verifica tus credenciales.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                <div className="bg-ferro-blue p-8 text-center rounded-t-2xl">
+                    <div className="mx-auto h-24 w-24 bg-white rounded-full flex items-center justify-center mb-4 shadow-lg p-2">
+                        <img src="/logo.png" alt="Logo Club" className="h-full w-full object-contain" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white">Bienvenido</h2>
+                    <p className="text-blue-100 mt-1">Ingresa para gestionar la escuela</p>
+                </div>
+
+                <div className="p-8">
+                    {error && (
+                        <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4 text-sm text-red-700">
+                            {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Email</label>
+                            <div className="mt-1 relative rounded-md shadow-sm">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Mail className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <input
+                                    type="email"
+                                    required
+                                    autoComplete="email"
+                                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-ferro-blue focus:border-ferro-blue sm:text-sm"
+                                    placeholder="admin@ejemplo.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+                            <div className="mt-1 relative rounded-md shadow-sm">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Lock className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <input
+                                    type="password"
+                                    required
+                                    autoComplete="current-password"
+                                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-ferro-blue focus:border-ferro-blue sm:text-sm"
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-ferro-blue hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ferro-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            {loading ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                                'Iniciar Sesión'
+                            )}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+}
