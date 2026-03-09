@@ -10,10 +10,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'vite.svg'],
       manifest: {
-        name: 'Asistencia Patín - CASR',
-        short_name: 'PatinApp',
+        name: 'Asistencia Ferrocarril',
+        short_name: 'Patin Ferro',
         description: 'Gestión de asistencia y pagos para escuela de patín',
-        theme_color: '#DC2626',
+        theme_color: '#10b981',
         icons: [
           {
             src: 'pwa-192x192.png',
