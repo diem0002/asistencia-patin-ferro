@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, doc, updateDoc, getDocs, deleteDoc, query, where, writeBatch } from 'firebase/firestore';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function AlumnoForm({ isOpen, onClose, onSave, alumnoToEdit }) {
     const [loading, setLoading] = useState(false);
@@ -13,7 +14,7 @@ export default function AlumnoForm({ isOpen, onClose, onSave, alumnoToEdit }) {
         nombre: alumnoToEdit?.nombre || '',
         apellido: alumnoToEdit?.apellido || '',
         fecha_nacimiento: alumnoToEdit?.fecha_nacimiento || '',
-        fecha_inicio: alumnoToEdit?.fecha_inicio || new Date().toISOString().split('T')[0],
+        fecha_inicio: alumnoToEdit?.fecha_inicio || format(new Date(), 'yyyy-MM-dd'),
         nombre_tutor: alumnoToEdit?.nombre_tutor || '',
         telefono_tutor: alumnoToEdit?.telefono_tutor || '',
         email_tutor: alumnoToEdit?.email_tutor || '',
@@ -163,8 +164,8 @@ export default function AlumnoForm({ isOpen, onClose, onSave, alumnoToEdit }) {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Apellido *</label>
-                                <input required type="text" name="apellido" value={formData.apellido} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ferro-blue focus:ring-ferro-blue sm:text-sm p-2 border" />
+                                <label className="block text-sm font-medium text-gray-700">Apellido</label>
+                                <input type="text" name="apellido" value={formData.apellido} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ferro-blue focus:ring-ferro-blue sm:text-sm p-2 border" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
@@ -184,8 +185,8 @@ export default function AlumnoForm({ isOpen, onClose, onSave, alumnoToEdit }) {
                             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Contacto / Tutor</h3>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Nombre Tutor *</label>
-                                <input required type="text" name="nombre_tutor" value={formData.nombre_tutor} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ferro-blue focus:ring-ferro-blue sm:text-sm p-2 border" />
+                                <label className="block text-sm font-medium text-gray-700">Nombre Tutor</label>
+                                <input type="text" name="nombre_tutor" value={formData.nombre_tutor} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-ferro-blue focus:ring-ferro-blue sm:text-sm p-2 border" />
                             </div>
 
                             <div>
