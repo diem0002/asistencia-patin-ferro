@@ -46,7 +46,11 @@ export default function ReportesPage() {
                 alumnos = alumnosSnap.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
                     .filter(a => alumnoIdsInGroup.includes(a.id))
-                    .sort((a, b) => a.apellido.localeCompare(b.apellido));
+                    .sort((a, b) => {
+                         const nombreA = (a.apellido || a.nombre || '').toLowerCase();
+                         const nombreB = (b.apellido || b.nombre || '').toLowerCase();
+                         return nombreA.localeCompare(nombreB);
+                    });
             }
 
             // 2. Get attendance for THIS month
