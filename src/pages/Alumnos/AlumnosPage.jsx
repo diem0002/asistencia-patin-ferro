@@ -20,9 +20,16 @@ export default function AlumnosPage() {
         setLoading(true);
         try {
             // 1. Fetch Alumnos
-            const alumnosQ = query(collection(db, 'alumnos'), where('activo', '==', true), orderBy('apellido', 'asc'));
+            const alumnosQ = query(collection(db, 'alumnos'), where('activo', '==', true));
             const alumnosSnap = await getDocs(alumnosQ);
             let alumnosBase = alumnosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            // Ordenarlos alfabéticamente en memoria para evitar problemas con Firestore Indexes
+            alumnosBase.sort((a, b) => {
+                const nombreA = (a.apellido || a.nombre || '').toLowerCase();
+                const nombreB = (b.apellido || b.nombre || '').toLowerCase();
+                return nombreA.localeCompare(nombreB);
+            });
 
             // 2. Fetch all Grupos
             const gruposSnap = await getDocs(collection(db, 'grupos'));
