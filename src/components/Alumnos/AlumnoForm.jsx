@@ -79,7 +79,7 @@ export default function AlumnoForm({ isOpen, onClose, onSave, alumnoToEdit }) {
 
         try {
             let alumnoId;
-            const payload = { ...formData };
+            const payload = { ...formData, activo: true };
 
             if (alumnoToEdit) {
                 // Edit Alumno
