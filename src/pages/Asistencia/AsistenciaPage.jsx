@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, query, where, getDocs, doc, writeBatch, deleteDoc, setDoc, getDoc, orderBy } from 'firebase/firestore';
 import { Calendar, UserCheck, Check, X, Save, AlertCircle, Trash2, CalendarOff } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function AsistenciaPage() {
     const [grupos, setGrupos] = useState([]);
     const [selectedGrupo, setSelectedGrupo] = useState('');
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
     const [alumnos, setAlumnos] = useState([]);
     const [asistencia, setAsistencia] = useState({}); // { alumnoId: true/false }
