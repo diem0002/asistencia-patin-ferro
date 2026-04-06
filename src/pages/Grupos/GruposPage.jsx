@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, orderBy } from 'firebase/firestore';
-import { Plus, Trash2, Edit, Calendar, Clock, DollarSign } from 'lucide-react';
+import { Plus, Trash2, Edit, Calendar, Clock, DollarSign, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import GrupoForm from '../../components/Grupos/GrupoForm';
 
 const DIAS_SEMANANA = [
@@ -13,10 +15,70 @@ export default function GruposPage() {
     const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingGrupo, setEditingGrupo] = useState(null);
+    const [downloadingId, setDownloadingId] = useState(null);
 
     useEffect(() => {
         fetchGrupos();
     }, []);
+
+    async function handleDownloadPDF(grupo) {
+        setDownloadingId(grupo.id);
+        try {
+            const relQ = query(collection(db, 'alumnos_grupos'), where('grupo_id', '==', grupo.id));
+            const relSnap = await getDocs(relQ);
+            const alumnoIdsInGroup = relSnap.docs.map(d => d.data().alumno_id);
+
+            let alumnos = [];
+            if (alumnoIdsInGroup.length > 0) {
+                const alumnosQ = query(collection(db, 'alumnos'), where('activo', '==', true));
+                const alumnosSnap = await getDocs(alumnosQ);
+                alumnos = alumnosSnap.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(a => alumnoIdsInGroup.includes(a.id))
+                    .sort((a, b) => {
+                         const nombreA = (a.apellido || a.nombre || '').toLowerCase();
+                         const nombreB = (b.apellido || b.nombre || '').toLowerCase();
+                         return nombreA.localeCompare(nombreB);
+                    });
+            }
+
+            if (alumnos.length === 0) {
+                alert('No hay alumnos inscritos en este grupo para descargar.');
+                setDownloadingId(null);
+                return;
+            }
+
+            const docPDF = new jsPDF();
+            
+            docPDF.setFontSize(18);
+            docPDF.text(`Lista de Alumnos - ${grupo.nombre}`, 14, 22);
+            
+            docPDF.setFontSize(11);
+            docPDF.setTextColor(100);
+            docPDF.text(`Generado el: ${new Date().toLocaleDateString()}`, 14, 30);
+            
+            const tableData = alumnos.map((al, index) => [
+                index + 1,
+                al.apellido ? `${al.apellido}, ${al.nombre}` : al.nombre
+            ]);
+
+            docPDF.autoTable({
+                startY: 36,
+                head: [['#', 'Apellido y Nombre']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [16, 185, 129] } // equivalent to ferro-green
+            });
+
+            docPDF.save(`Lista_${grupo.nombre.replace(/\s+/g, '_')}.pdf`);
+
+        } catch (error) {
+            console.error('Error generando PDF:', error);
+            alert('Error al generar el PDF');
+        } finally {
+            setDownloadingId(null);
+        }
+    }
 
     async function fetchGrupos() {
         setLoading(true);
@@ -109,6 +171,13 @@ export default function GruposPage() {
                                     <div className="flex justify-between items-start mb-4">
                                         <h3 className="text-xl font-bold text-gray-900 truncate pr-2">{grupo.nombre}</h3>
                                         <div className="flex gap-2 shrink-0">
+                                            <button 
+                                                onClick={() => handleDownloadPDF(grupo)} 
+                                                className={`text-gray-400 hover:text-green-600 ${downloadingId === grupo.id ? 'animate-pulse' : ''}`}
+                                                title="Descargar Lista PDF"
+                                            >
+                                                <Download className="w-5 h-5" />
+                                            </button>
                                             <button onClick={() => handleOpenForm(grupo)} className="text-gray-400 hover:text-blue-600">
                                                 <Edit className="w-5 h-5" />
                                             </button>
