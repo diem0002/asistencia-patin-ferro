@@ -3,7 +3,7 @@ import { db } from '../../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, orderBy } from 'firebase/firestore';
 import { Plus, Trash2, Edit, Calendar, Clock, DollarSign, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import GrupoForm from '../../components/Grupos/GrupoForm';
 
 const DIAS_SEMANANA = [
@@ -62,7 +62,7 @@ export default function GruposPage() {
                 al.apellido ? `${al.apellido}, ${al.nombre}` : al.nombre
             ]);
 
-            docPDF.autoTable({
+            autoTable(docPDF, {
                 startY: 36,
                 head: [['#', 'Apellido y Nombre']],
                 body: tableData,
