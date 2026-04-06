@@ -50,6 +50,10 @@ export default function AsistenciaPage() {
                     alumnosData = alumnosSnap.docs
                         .map(doc => ({ id: doc.id, ...doc.data() }))
                         .filter(a => alumnoIdsInGroup.includes(a.id))
+                        .filter(a => {
+                            if (!a.fecha_inicio) return true;
+                            return a.fecha_inicio <= selectedDate;
+                        })
                         .sort((a, b) => {
                              const nombreA = (a.apellido || a.nombre || '').toLowerCase();
                              const nombreB = (b.apellido || b.nombre || '').toLowerCase();

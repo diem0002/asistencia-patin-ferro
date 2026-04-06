@@ -39,6 +39,10 @@ export default function ReportesPage() {
             const relSnap = await getDocs(relQ);
             const alumnoIdsInGroup = relSnap.docs.map(d => d.data().alumno_id);
 
+            // 2. Get attendance for THIS month (needed scope variables)
+            const startStr = startOfMonth(currentMonth).toISOString().split('T')[0];
+            const endStr = endOfMonth(currentMonth).toISOString().split('T')[0];
+
             let alumnos = [];
             if (alumnoIdsInGroup.length > 0) {
                 const alumnosQ = query(collection(db, 'alumnos'), where('activo', '==', true));
@@ -46,6 +50,10 @@ export default function ReportesPage() {
                 alumnos = alumnosSnap.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
                     .filter(a => alumnoIdsInGroup.includes(a.id))
+                    .filter(a => {
+                        if (!a.fecha_inicio) return true;
+                        return a.fecha_inicio <= endStr;
+                    })
                     .sort((a, b) => {
                          const nombreA = (a.apellido || a.nombre || '').toLowerCase();
                          const nombreB = (b.apellido || b.nombre || '').toLowerCase();
@@ -54,9 +62,6 @@ export default function ReportesPage() {
             }
 
             // 2. Get attendance for THIS month
-            const startStr = startOfMonth(currentMonth).toISOString().split('T')[0];
-            const endStr = endOfMonth(currentMonth).toISOString().split('T')[0];
-
             const asistenciasQ = query(
                 collection(db, 'asistencias'),
                 where('grupo_id', '==', selectedGrupo),
